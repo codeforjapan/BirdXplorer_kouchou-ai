@@ -252,11 +252,11 @@ export function ScatterChart({
             hovertemplate: "%{text}<extra></extra>",
             hoverlabel: {
               align: "left" as const,
-              bgcolor: "white",
+              bgcolor: "#555555",
               bordercolor: clusterColorMap[cluster.id],
               font: {
                 size: 12,
-                color: "#333",
+                color: "#fff",
               },
             },
             showlegend: false,
@@ -307,11 +307,11 @@ export function ScatterChart({
           hoverinfo: "text",
           hoverlabel: {
             align: "left" as const,
-            bgcolor: "white",
+            bgcolor: "#555555",
             bordercolor: clusterColorMap[dataSet.cluster.id],
             font: {
               size: 12,
-              color: "#333",
+              color: "#fff",
             },
           },
           showlegend: false,
@@ -362,6 +362,8 @@ export function ScatterChart({
           layout={
             {
               margin: { l: 0, r: 0, b: 0, t: 0 },
+              paper_bgcolor: "#171717",
+              plot_bgcolor: "#171717",
               xaxis: {
                 zeroline: false,
                 showticklabels: false,

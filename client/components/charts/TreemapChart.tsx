@@ -121,6 +121,10 @@ export function TreemapChart({ clusterList, argumentList, onHover, level, onTree
     hovertemplate: "%{customdata}<extra></extra>",
     hoverlabel: {
       align: "left",
+      bgcolor: "#555555",
+      font: {
+        color: "#fff",
+      },
     },
     texttemplate: isFilteringActive
       ? "%{label}<br>%{value:,}件 (フィルター後)<br>%{percentEntry:.2%}"
@@ -133,6 +137,8 @@ export function TreemapChart({ clusterList, argumentList, onHover, level, onTree
 
   const layout = {
     margin: { l: 10, r: 10, b: 10, t: 30 },
+    paper_bgcolor: "#171717",
+    plot_bgcolor: "#171717",
     colorway: [
       "#b3daa1",
       "#f5c5d7",
