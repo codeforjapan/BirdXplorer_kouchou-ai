@@ -42,7 +42,7 @@ services:
       start_period: 10s
     networks:
       - app-network
-  
+
   client:
     <<: *client-common
     build:
@@ -51,7 +51,7 @@ services:
       <<: *client-build-args
     ports:
       - "3000:3000"
-  
+
   client-dev:
     <<: *client-common
     image: node:22-alpine
@@ -70,7 +70,7 @@ services:
       context: .
       dockerfile: ./client-static-build/Dockerfile
       <<: *client-build-args
-  
+
   client-admin:
     build:
       context: ./client-admin
@@ -87,7 +87,7 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-  
+
   client-admin-dev:
     <<: *client-common
     image: node:22-alpine
@@ -101,7 +101,7 @@ services:
       - client-admin-dev-node_modules:/app/node_modules
     ports:
       - "4000:4000"
-      
+
   ollama:
     image: ollama/ollama:latest
     ports:
