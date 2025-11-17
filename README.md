@@ -62,9 +62,9 @@
     - 環境変数（.env）を編集した場合は、`docker compose down` を実行した後、 `docker compose up --build` を実行してアプリケーションを起動してください
       - 一部の環境変数は Docker イメージのビルド時に埋め込まれているため、環境変数を変更した場合はビルドの再実行が必要となります
     - すべてのモジュールを起動すると遅い場合は `docker compose up --no-deps client api` など適宜絞って起動できます
-    - フロントエンドをホットリロードで開発する場合は、以下の開発用サービスを利用できます（本番用 `client`/`client-admin` と同時起動するとポートが競合するため、必要な方のみを起動してください）
-      - `docker compose up client-dev`：`client` を `npm run dev` で起動（http://localhost:3000）
-      - `docker compose up client-admin-dev`：`client-admin` を `npm run dev` で起動（http://localhost:4000）
+    - フロントエンドをホットリロードで開発する場合は、`dev` プロファイルを使って開発用サービスを起動してください（本番用 `client` / `client-admin` と同時に動かないのでポート競合を気にせず切り替えられます）
+      - `docker compose --profile dev up client-dev client-admin-dev`
+      - `docker compose --profile dev down` で開発用サービスのみ停止可能
       - いずれもホスト上の `./client` / `./client-admin` をボリュームマウントするため、保存すれば即座にブラウザへ反映されます
 
 ### ローカル LLM の使用
