@@ -51,6 +51,18 @@ services:
       <<: *client-build-args
     ports:
       - "3000:3000"
+  
+  client-dev:
+    <<: *client-common
+    image: node:22-alpine
+    working_dir: /app
+    command: >
+      sh -c "npm install && npm run dev"
+    volumes:
+      - ./client:/app
+      - client-dev-node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
 
   client-static-build:
     <<: *client-common
@@ -75,6 +87,20 @@ services:
     restart: unless-stopped
     networks:
       - app-network
+  
+  client-admin-dev:
+    <<: *client-common
+    image: node:22-alpine
+    working_dir: /app
+    command: >
+      sh -c "npm install && npm run dev"
+    env_file:
+      - .env
+    volumes:
+      - ./client-admin:/app
+      - client-admin-dev-node_modules:/app/node_modules
+    ports:
+      - "4000:4000"
       
   ollama:
     image: ollama/ollama:latest
@@ -109,4 +135,8 @@ networks:
 
 volumes:
   ollama-data:
+    driver: local
+  client-dev-node_modules:
+    driver: local
+  client-admin-dev-node_modules:
     driver: local
