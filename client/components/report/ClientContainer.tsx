@@ -1,6 +1,5 @@
 "use client";
 
-import { SelectChartButton } from "@/components/charts/SelectChartButton";
 import { AttributeFilterDialog, type AttributeFilters } from "@/components/report/AttributeFilterDialog";
 import { Chart } from "@/components/report/Chart";
 import { ClusterOverview } from "@/components/report/ClusterOverview";
@@ -285,7 +284,7 @@ export function ClientContainer({ result }: Props) {
           initialTextSearch={textSearch}
         />
       )}
-      <SelectChartButton
+      {/* <SelectChartButton
         selected={selectedChart}
         onChange={handleChartChange}
         onClickDensitySetting={handleClickDensitySetting}
@@ -306,7 +305,7 @@ export function ClientContainer({ result }: Props) {
           // テキスト検索が有効な場合は+1する
           return allFilteredAttributes.size + (textSearch.trim() !== "" ? 1 : 0);
         })()}
-      />
+      /> */}
       <Chart
         result={filteredResult}
         selectedChart={selectedChart}

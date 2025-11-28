@@ -22,6 +22,7 @@
   - docker
   - git
   - OpenAI API キー
+
 ## セットアップ・起動
 
 ### 前提
@@ -61,6 +62,10 @@
     - 環境変数（.env）を編集した場合は、`docker compose down` を実行した後、 `docker compose up --build` を実行してアプリケーションを起動してください
       - 一部の環境変数は Docker イメージのビルド時に埋め込まれているため、環境変数を変更した場合はビルドの再実行が必要となります
     - すべてのモジュールを起動すると遅い場合は `docker compose up --no-deps client api` など適宜絞って起動できます
+    - フロントエンドをホットリロードで開発する場合は、`dev` プロファイルを使って開発用サービスを起動してください（本番用 `client` / `client-admin` と同時に動かないのでポート競合を気にせず切り替えられます）
+      - `docker compose --profile dev up client-dev client-admin-dev`
+      - `docker compose --profile dev down` で開発用サービスのみ停止可能
+      - いずれもホスト上の `./client` / `./client-admin` をボリュームマウントするため、保存すれば即座にブラウザへ反映されます
 
 ### ローカル LLM の使用
 
@@ -146,7 +151,7 @@ make client-build-static
 
 `out/` ディレクトリに静的ファイルが出力されますので、Web サーバーに配置してください。
 
-静的エクスポートしたレポートをGithub Pagesにホスティングする手順は[GitHub Pagesの静的ファイルホスティング手順](./docs/github-pages-hosting.md)を参照。
+静的エクスポートしたレポートを Github Pages にホスティングする手順は[GitHub Pages の静的ファイルホスティング手順](./docs/github-pages-hosting.md)を参照。
 
 ## アーキテクチャ概要
 

@@ -1,13 +1,7 @@
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
-import { Analysis } from "@/components/report/Analysis";
-import { BackButton } from "@/components/report/BackButton";
 import { ClientContainer } from "@/components/report/ClientContainer";
-import { Overview } from "@/components/report/Overview";
-import { Reporter } from "@/components/reporter/Reporter";
 import type { Meta, Report, Result } from "@/type";
 import { ReportVisibility } from "@/type";
-import { Box, Separator } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getApiBaseUrl } from "../utils/api";
@@ -122,18 +116,18 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <Box className="container" mt="8">
-        <Overview result={result} />
+        {/* <Overview result={result} /> */}
         <ClientContainer result={result} />
-        <Analysis result={result} />
-        <BackButton />
-        <Separator my={12} maxW={"750px"} mx={"auto"} />
-        <Box maxW={"750px"} mx={"auto"} mb={24}>
+        {/* <Analysis result={result} /> */}
+        {/* <BackButton /> */}
+        {/* <Separator my={12} maxW={"750px"} mx={"auto"} /> */}
+        {/* <Box maxW={"750px"} mx={"auto"} mb={24}>
           <Reporter meta={meta} />
-        </Box>
+        </Box> */}
       </Box>
-      <Footer meta={meta} />
+      {/* <Footer meta={meta} /> */}
     </>
   );
 }

@@ -107,7 +107,7 @@ export function Chart({
                 flexDirection="column"
                 justifyContent="center"
                 alignItems="center"
-                bg="#fff"
+                bg="#171717"
               >
                 <HStack id={"fullScreenButtons"} position={"fixed"} top={5} right={5} zIndex={1}>
                   <Tooltip content={"全画面終了"} openDelay={0} closeDelay={0}>
@@ -149,8 +149,8 @@ export function Chart({
   }
 
   return (
-    <Box mx={"auto"} w={"100%"} maxW={"1200px"} mb={10} border={"1px solid #ccc"}>
-      <Box h={"500px"} mb={0}>
+    <Box mx={"auto"} w={"100%"} maxW={"1200px"} mb={10} border={"1px solid #ccc"} bg="#171717">
+      <Box h={"500px"} mb={0} bg="#171717">
         {selectedChart === "treemap" && (
           <TreemapChart
             key={treemapLevel}

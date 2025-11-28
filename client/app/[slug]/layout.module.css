@@ -1,0 +1,19 @@
+.darkRoot {
+  background-color: #05070b;
+  color: #f5f5f5;
+  min-height: 100vh;
+  color-scheme: dark;
+}
+
+.darkRoot :global(.container) {
+  color: inherit;
+}
+
+.darkRoot :global(.headingColor) {
+  color: #7bc4ff;
+}
+
+.darkRoot :global(.gradientBg) {
+  background: linear-gradient(90deg, rgb(9, 119, 171) 0%, rgb(62, 26, 121) 100%);
+}
+
