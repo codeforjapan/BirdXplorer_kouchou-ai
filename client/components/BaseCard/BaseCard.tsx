@@ -1,3 +1,4 @@
+import { Box, Flex } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 
 type BaseCardProps = {
@@ -10,19 +11,37 @@ type BaseCardProps = {
 export function BaseCard({
   title,
   body,
-  titleBgColor = "bg-black",
+  titleBgColor = "#000000",
   className,
 }: BaseCardProps) {
   return (
-    <div
-      className={`flex h-full w-full flex-col overflow-hidden rounded-lg border border-gray-2 ${className ?? ""}`}
+    <Box
+      display="flex"
+      flexDirection="column"
+      width="100%"
+      overflow="hidden"
+      borderRadius="lg"
+      border="1px solid"
+      borderColor="gray.700"
+      className={className}
     >
-      <div
-        className={`flex items-center justify-between px-4 py-3 ${titleBgColor}`}
+      <Flex
+        alignItems="center"
+        justifyContent="space-between"
+        px={4}
+        py={3}
+        bg={titleBgColor}
       >
-        <div className="text-body-l-bold-compact">{title}</div>
-      </div>
-      <div className="flex flex-1 items-center bg-gray-1 p-5">{body}</div>
-    </div>
+        <Box fontWeight="bold">{title}</Box>
+      </Flex>
+      <Flex
+        flex={1}
+        alignItems="center"
+        bg="gray.800"
+        p={5}
+      >
+        {body}
+      </Flex>
+    </Box>
   );
 }

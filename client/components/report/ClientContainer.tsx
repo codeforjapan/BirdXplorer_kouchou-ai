@@ -5,6 +5,7 @@ import { Chart } from "@/components/report/Chart";
 import { ClusterOverview } from "@/components/report/ClusterOverview";
 import { DisplaySettingDialog } from "@/components/report/DisplaySettingDialog";
 import type { Cluster, Result } from "@/type";
+import { Box, VStack } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import type { AttributeMeta } from "./AttributeFilterDialog";
 import { type NumericRangeFilters, filterSamples } from "./attributeFilterUtils";
@@ -261,7 +262,7 @@ export function ClientContainer({ result }: Props) {
 
   // --- UI ---
   return (
-    <div>
+    <Box minH="100vh" bg="black">
       {openDensityFilterSetting && (
         <DisplaySettingDialog
           currentMaxDensity={maxDensity}
@@ -306,27 +307,31 @@ export function ClientContainer({ result }: Props) {
           return allFilteredAttributes.size + (textSearch.trim() !== "" ? 1 : 0);
         })()}
       /> */}
-      <Chart
-        result={filteredResult}
-        selectedChart={selectedChart}
-        isFullscreen={isFullscreen}
-        onExitFullscreen={handleExitFullscreen}
-        showClusterLabels={showClusterLabels}
-        onToggleClusterLabels={handleToggleClusterLabels}
-        treemapLevel={treemapLevel}
-        onTreeZoom={handleTreeZoom}
-        filterState={{
-          attributeFilters,
-          numericRanges,
-          enabledRanges,
-          includeEmptyValues,
-          textSearch,
-        }}
-      />
-      {clustersToDisplay.map((c) => (
-        <ClusterOverview key={c.id} cluster={c} />
-      ))}
-    </div>
+      <Box mb={6}>
+        <Chart
+          result={filteredResult}
+          selectedChart={selectedChart}
+          isFullscreen={isFullscreen}
+          onExitFullscreen={handleExitFullscreen}
+          showClusterLabels={showClusterLabels}
+          onToggleClusterLabels={handleToggleClusterLabels}
+          treemapLevel={treemapLevel}
+          onTreeZoom={handleTreeZoom}
+          filterState={{
+            attributeFilters,
+            numericRanges,
+            enabledRanges,
+            includeEmptyValues,
+            textSearch,
+          }}
+        />
+      </Box>
+      <VStack gap={6} w="100%">
+        {clustersToDisplay.map((c) => (
+          <ClusterOverview key={c.id} cluster={c} />
+        ))}
+      </VStack>
+    </Box>
   );
 }
 
