@@ -1,7 +1,6 @@
 import { ClientContainer } from "@/components/report/ClientContainer";
 import type { Meta, Report, Result } from "@/type";
 import { ReportVisibility } from "@/type";
-import { Box } from "@chakra-ui/react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getApiBaseUrl } from "../utils/api";
@@ -117,7 +116,7 @@ export default async function Page({ params }: PageProps) {
   return (
     <>
       {/* <Header /> */}
-      <Box className="container" mt="8">
+      {/* <Box className="container" mt="8"> */}
         {/* <Overview result={result} /> */}
         <ClientContainer result={result} />
         {/* <Analysis result={result} /> */}
@@ -126,7 +125,7 @@ export default async function Page({ params }: PageProps) {
         {/* <Box maxW={"750px"} mx={"auto"} mb={24}>
           <Reporter meta={meta} />
         </Box> */}
-      </Box>
+      {/* </Box> */}
       {/* <Footer meta={meta} /> */}
     </>
   );
