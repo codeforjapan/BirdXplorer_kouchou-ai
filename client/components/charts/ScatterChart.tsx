@@ -13,6 +13,8 @@ type Props = {
   // フィルター適用後の引数IDのリストを受け取り、フィルターに該当しないポイントの表示を変更する
   filteredArgumentIds?: string[];
   config?: Config; // ソースリンク機能の有効/無効を制御するため
+  labelFontSize?: number; // ラベルのフォントサイズ（デフォルト14）
+  labelMaxWidth?: number; // ラベルの最大幅（デフォルト228）
 };
 
 export function ScatterChart({
@@ -23,6 +25,8 @@ export function ScatterChart({
   showClusterLabels,
   filteredArgumentIds, // フィルター済みIDリスト（フィルター条件に合致する引数のID）
   config,
+  labelFontSize = 14,
+  labelMaxWidth = 228,
 }: Props) {
   // 全ての引数を表示するため、argumentListをそのまま使用
   // フィルター条件に合致しないものは後で灰色表示する
@@ -93,8 +97,8 @@ export function ScatterChart({
     {} as Record<string, string>,
   );
 
-  const annotationLabelWidth = 228; // ラベルの最大横幅を指定
-  const annotationFontsize = 14; // フォントサイズを指定
+  const annotationLabelWidth = labelMaxWidth; // ラベルの最大横幅を指定
+  const annotationFontsize = labelFontSize; // フォントサイズを指定
 
   // ラベルのテキストを折り返すための関数
   const wrapLabelText = (text: string): string => {

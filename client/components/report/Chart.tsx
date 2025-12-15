@@ -4,7 +4,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import type { Result } from "@/type";
 import { Box, Button, Dialog, HStack, Icon, Portal } from "@chakra-ui/react";
 import { Minimize2 } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type ReportProps = {
   result: Result;
@@ -36,6 +36,38 @@ export function Chart({
   onTreeZoom,
   filterState, // 追加: フィルター状態
 }: ReportProps & { filterState?: FilterState }) {
+  // コンテナサイズを監視して、狭い場合はラベルを小さくする
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(1000);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setContainerWidth(entry.contentRect.width);
+      }
+    });
+
+    resizeObserver.observe(container);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  // 画面幅に応じてラベルのフォントサイズと幅を調整
+  const labelSettings = useMemo(() => {
+    if (containerWidth < 400) {
+      return { fontSize: 8, maxWidth: 100 };
+    }
+    if (containerWidth < 600) {
+      return { fontSize: 10, maxWidth: 140 };
+    }
+    if (containerWidth < 800) {
+      return { fontSize: 12, maxWidth: 180 };
+    }
+    return { fontSize: 14, maxWidth: 228 };
+  }, [containerWidth]);
+
   // フィルター済み引数IDリストを計算
   const filteredArgumentIds = useMemo(() => {
     if (!filterState) return undefined;
@@ -149,8 +181,16 @@ export function Chart({
   }
 
   return (
-    <Box mx={"auto"} w={"100%"} maxW={"1200px"} mb={10} border={"1px solid #ccc"} bg="#171717">
-      <Box h={"500px"} mb={0} bg="#171717">
+    <Box
+      ref={containerRef}
+      w={"100%"}
+      overflow="hidden"
+      borderRadius="lg"
+      border="1px solid"
+      borderColor="gray.700"
+      bg="#171717"
+    >
+      <Box h={{ base: "300px", sm: "400px", md: "500px" }} bg="#171717">
         {selectedChart === "treemap" && (
           <TreemapChart
             key={treemapLevel}
@@ -169,6 +209,8 @@ export function Chart({
             showClusterLabels={showClusterLabels}
             filteredArgumentIds={filteredArgumentIds}
             config={result.config}
+            labelFontSize={labelSettings.fontSize}
+            labelMaxWidth={labelSettings.maxWidth}
           />
         )}
       </Box>
