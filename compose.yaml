@@ -1,4 +1,4 @@
-x-client-common: &client-common
+x-frontend-common: &frontend-common
   depends_on:
     api:
       condition: service_healthy
@@ -10,7 +10,7 @@ x-client-common: &client-common
   extra_hosts:
     - "host.docker.internal:host-gateway"
 
-x-client-build-args: &client-build-args
+x-frontend-build-args: &frontend-build-args
   args:
     - NEXT_PUBLIC_API_BASEPATH=${NEXT_PUBLIC_API_BASEPATH}
     - API_BASEPATH=${API_BASEPATH}
@@ -20,15 +20,15 @@ x-client-build-args: &client-build-args
 services:
   api:
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/api/Dockerfile
       args:
         - ENVIRONMENT=${ENVIRONMENT}
         - WITH_GPU=${WITH_GPU:-false}
     ports:
       - "8000:8000"
     volumes:
-      - ./server:/app
+      - ./apps/api:/app
     environment:
       - LOG_LEVEL=debug
     env_file:
@@ -43,66 +43,65 @@ services:
     networks:
       - app-network
 
-  client:
-    <<: *client-common
+  public-viewer:
+    <<: *frontend-common
     build:
-      context: ./client
-      dockerfile: Dockerfile
-      <<: *client-build-args
+      context: .
+      dockerfile: ./apps/public-viewer/Dockerfile
+      <<: *frontend-build-args
     ports:
       - "3000:3000"
 
-  client-dev:
-    <<: *client-common
+  public-viewer-dev:
+    <<: *frontend-common
     image: node:22-alpine
-    working_dir: /app
+    working_dir: /repo
     command: >
-      sh -c "npm install && npm run dev"
+      sh -c "corepack enable && pnpm install && pnpm --filter ./apps/public-viewer dev"
     profiles:
       - dev
     volumes:
-      - ./client:/app
-      - client-dev-node_modules:/app/node_modules
+      - .:/repo
+      - public-viewer-dev-node_modules:/repo/node_modules
     ports:
       - "3000:3000"
 
-  client-static-build:
-    <<: *client-common
+  static-site-builder:
+    <<: *frontend-common
     build:
       context: .
-      dockerfile: ./client-static-build/Dockerfile
-      <<: *client-build-args
+      dockerfile: ./apps/static-site-builder/Dockerfile
+      <<: *frontend-build-args
 
-  client-admin:
+  admin:
+    <<: *frontend-common
     build:
-      context: ./client-admin
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/admin/Dockerfile
       args:
         - NEXT_PUBLIC_CLIENT_BASEPATH=${NEXT_PUBLIC_CLIENT_BASEPATH}
         - NEXT_PUBLIC_API_BASEPATH=${NEXT_PUBLIC_API_BASEPATH}
         - NEXT_PUBLIC_ADMIN_API_KEY=${NEXT_PUBLIC_ADMIN_API_KEY}
+        - API_BASEPATH=http://api:8000
         - CLIENT_STATIC_BUILD_BASEPATH=${CLIENT_STATIC_BUILD_BASEPATH}
     ports:
       - "4000:4000"
-    env_file:
-      - .env
-    restart: unless-stopped
-    networks:
-      - app-network
+    environment:
+      - API_BASEPATH=http://api:8000
 
-  client-admin-dev:
-    <<: *client-common
+  admin-dev:
+    <<: *frontend-common
     image: node:22-alpine
-    working_dir: /app
+    working_dir: /repo
     command: >
-      sh -c "npm install && npm run dev"
+      sh -c "corepack enable && pnpm install && pnpm --filter ./apps/admin dev"
     profiles:
       - dev
     env_file:
       - .env
     volumes:
-      - ./client-admin:/app
-      - client-admin-dev-node_modules:/app/node_modules
+      - .:/repo
+      - admin-dev-node_modules:/repo/node_modules
     ports:
       - "4000:4000"
 
@@ -124,7 +123,6 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-    # ollama イメージのデフォルトエントリーポイントを上書きして、モデルを自動ダウンロード
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
@@ -140,7 +138,7 @@ networks:
 volumes:
   ollama-data:
     driver: local
-  client-dev-node_modules:
+  public-viewer-dev-node_modules:
     driver: local
-  client-admin-dev-node_modules:
+  admin-dev-node_modules:
     driver: local

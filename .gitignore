@@ -11,6 +11,9 @@ docker-compose.override.y*ml
 out
 lefthook-local.yml
 dist
+.tmp/
+apps/public-viewer/out-root/
+apps/public-viewer/out-subdir/
 
 # Claude Code
 .claude/
@@ -22,7 +25,19 @@ test-results/
 /playwright.config.ts
 
 # Package managers
-pnpm-lock.yaml
+**/package-lock.json
 
 # Build outputs
-client/issues-kouchou-ai/
+apps/public-viewer/issues-kouchou-ai/
+site/
+
+# Python
+*.pyc
+__pycache__/
+
+# MkDocs auto-generated (copied from root by hooks)
+docs/development/contributing.md
+docs/development/code-review-guidelines.md
+docs/misc/projects.md
+docs/misc/cla.md
+docs/repo-readmes/

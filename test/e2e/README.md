@@ -5,13 +5,13 @@
 ## セットアップ
 
 1. 依存関係のインストール:
-   ```
-   npm install
+   ```bash
+   pnpm install
    ```
 
 2. Playwrightブラウザのインストール:
-   ```
-   npx playwright install
+   ```bash
+   pnpm exec playwright install
    ```
 
 3. 環境変数の設定:
@@ -26,8 +26,8 @@
 
 Playwrightの`webServer`機能により、テスト実行時に必要なサーバーが**自動的に起動**されます。
 
-- **Admin tests**: client-admin（port 4000）が自動起動
-- **Client tests**: dummy-server（port 8002）とclient（port 3000）が自動起動
+- **Admin tests**: admin（port 4000）が自動起動
+- **Client tests**: dummy-server（port 8002）とpublic-viewer（port 3000）が自動起動
 
 **手動でサーバーを起動する必要はありません。**
 
@@ -35,44 +35,44 @@ Playwrightの`webServer`機能により、テスト実行時に必要なサー�
 
 すべてのテストを実行:
 ```bash
-npm test
+pnpm test
 ```
 
 管理画面のテストのみ実行:
 ```bash
-npx playwright test --project=admin
+pnpm exec playwright test --project=admin
 ```
 
 Clientのテストのみ実行:
 ```bash
-npx playwright test --project=client
+pnpm exec playwright test --project=client
 ```
 
 Client静的ビルドのテストのみ実行:
 ```bash
 # Root ホスティング用（basePath なし）
-npx playwright test --project=client-static-root
+pnpm exec playwright test --project=client-static-root
 
 # Subdirectory ホスティング用（basePath="/kouchou-ai"）
-npx playwright test --project=client-static-subdir
+pnpm exec playwright test --project=client-static-subdir
 
 # 両方実行
-npx playwright test --project=client-static-root --project=client-static-subdir
+pnpm exec playwright test --project=client-static-root --project=client-static-subdir
 ```
 
 UIモードでテストを実行:
 ```bash
-npm run test:ui
+pnpm run test:ui
 ```
 
 デバッグモードでテストを実行:
 ```bash
-npm run test:debug
+pnpm run test:debug
 ```
 
 テストレポートを表示:
 ```bash
-npm run report
+pnpm run report
 ```
 
 ## ディレクトリ構造とテストファイル
@@ -108,8 +108,6 @@ test/e2e/
 │       └── report-test-report-1.json  # レポート詳細
 ├── pages/                         # ページオブジェクトモデル（将来的に使用）
 ├── playwright.config.ts           # Playwright設定
-├── TEST_PLAN.md                   # 管理画面テスト計画書
-└── CLIENT_TEST_PLAN.md            # Clientテスト計画書
 ```
 
 ### テストファイルの説明
@@ -178,10 +176,10 @@ Clientテストを実行する前に、検証テストを実行することを�
 
 ```bash
 # ダミーサーバーの動作確認
-npx playwright test tests/verify-dummy-server.spec.ts --project=verify
+pnpm exec playwright test tests/verify-dummy-server.spec.ts --project=verify
 
 # 環境変数と設定の確認
-npx playwright test tests/verify-environment.spec.ts --project=verify
+pnpm exec playwright test tests/verify-environment.spec.ts --project=verify
 ```
 
 **なぜ検証テストが重要か:**
@@ -205,8 +203,8 @@ npx playwright test tests/verify-environment.spec.ts --project=verify
 
 ```bash
 # まず検証テストで基本的な環境を確認
-npx playwright test tests/verify-dummy-server.spec.ts --project=verify
-npx playwright test tests/verify-environment.spec.ts --project=verify
+pnpm exec playwright test tests/verify-dummy-server.spec.ts --project=verify
+pnpm exec playwright test tests/verify-environment.spec.ts --project=verify
 ```
 
 これらが失敗する場合、サーバーの起動状態や環境変数の設定を確認してください。
@@ -214,7 +212,7 @@ npx playwright test tests/verify-environment.spec.ts --project=verify
 ### 1. 接続確認
 
 ```bash
-npx playwright test tests/simple.spec.ts
+pnpm exec playwright test tests/simple.spec.ts
 ```
 
 - ページが200 OKで返ってくるか確認
@@ -223,7 +221,7 @@ npx playwright test tests/simple.spec.ts
 ### 2. 要素確認
 
 ```bash
-npx playwright test tests/debug.spec.ts
+pnpm exec playwright test tests/debug.spec.ts
 ```
 
 - ページ内の全ての見出し、ボタン、画像を表示
@@ -232,7 +230,7 @@ npx playwright test tests/debug.spec.ts
 ### 3. ブラウザで確認
 
 ```bash
-npx playwright test --headed --debug
+pnpm exec playwright test --headed --debug
 ```
 
 - ブラウザを表示してステップ実行
@@ -240,31 +238,27 @@ npx playwright test --headed --debug
 
 ## 管理画面テスト（Admin）
 
-詳細なテスト計画は `TEST_PLAN.md` を参照してください。
-
 ### 対象
 
-- **URL**: http://localhost:4000（client-admin）
+- **URL**: http://localhost:4000（admin）
 - **機能**: レポート作成、パイプライン設定
 
 ### テスト実行
 
 ```bash
 # サーバーは自動起動されるので、テストを直接実行できます
-npx playwright test --project=admin
+pnpm exec playwright test --project=admin
 # または
-npx playwright test tests/admin/
+pnpm exec playwright test tests/admin/
 ```
 
-**注意**: `playwright.config.ts`の`webServer`設定により、client-adminサーバーは自動的に起動されます。手動起動は不要です。
+**注意**: `playwright.config.ts`の`webServer`設定により、adminサーバーは自動的に起動されます。手動起動は不要です。
 
 ## Clientテスト（レポート表示画面）
 
-詳細なテスト計画は `CLIENT_TEST_PLAN.md` を参照してください。
-
 ### 対象
 
-- **URL**: http://localhost:3000（client）
+- **URL**: http://localhost:3000（public-viewer）
 - **機能**: レポート一覧表示、レポート詳細表示
 
 ### テストの特徴
@@ -279,18 +273,18 @@ npx playwright test tests/admin/
 
 ```bash
 # サーバーは自動起動されるので、テストを直接実行できます
-npx playwright test --project=client
+pnpm exec playwright test --project=client
 # または個別のテストファイルを実行
-npx playwright test tests/client/reports.spec.ts
-npx playwright test tests/client/report-detail.spec.ts
+pnpm exec playwright test tests/client/reports.spec.ts
+pnpm exec playwright test tests/client/report-detail.spec.ts
 
 # 推奨: まず検証テストを実行して環境を確認
-npx playwright test tests/verify-dummy-server.spec.ts --project=verify
-npx playwright test tests/verify-environment.spec.ts --project=verify
+pnpm exec playwright test tests/verify-dummy-server.spec.ts --project=verify
+pnpm exec playwright test tests/verify-environment.spec.ts --project=verify
 ```
 
 **注意**:
-- `playwright.config.ts`の`webServer`設定により、dummy-server（port 8002）とclient（port 3000）は自動的に起動されます
+- `playwright.config.ts`の`webServer`設定により、dummy-server（port 8002）とpublic-viewer（port 3000）は自動的に起動されます
 - 手動起動は不要です
 - テスト失敗時は、まず検証テストを実行してサーバーと環境変数が正しく設定されているか確認してください
 
@@ -303,8 +297,8 @@ npx playwright test tests/verify-environment.spec.ts --project=verify
 cd utils/dummy-server
 PUBLIC_API_KEY=public E2E_TEST=true npx next dev -p 8002
 
-# ターミナル2: Clientサーバーを起動（port 3000、ダミーAPIサーバーを参照）
-cd client
+# ターミナル2: Public viewerサーバーを起動（port 3000、ダミーAPIサーバーを参照）
+cd apps/public-viewer
 NEXT_PUBLIC_API_BASEPATH=http://localhost:8002 \
 API_BASEPATH=http://localhost:8002 \
 NEXT_PUBLIC_PUBLIC_API_KEY=public \
@@ -380,18 +374,18 @@ E2E_TEST環境変数が設定されていない場合は、通常のダミーデ
 
 ```bash
 # Root と Subdirectory の両方のビルドが自動生成されます
-npx playwright test --project=client-static-root
-npx playwright test --project=client-static-subdir
+pnpm exec playwright test --project=client-static-root
+pnpm exec playwright test --project=client-static-subdir
 
 # または両方同時に実行
-npx playwright test --project=client-static-root --project=client-static-subdir
+pnpm exec playwright test --project=client-static-root --project=client-static-subdir
 ```
 
 **自動ビルドの仕組み:**
 - テスト実行前に `scripts/global-setup.ts` が実行されます
 - ダミーAPIサーバー（port 8002）からデータを取得して2種類のビルドを生成
-  1. Root用: `client/out` (basePath なし)
-  2. Subdirectory用: `client/out-subdir` (basePath="/kouchou-ai")
+  1. Root用: `apps/public-viewer/out` (basePath なし)
+  2. Subdirectory用: `apps/public-viewer/out-subdir` (basePath="/kouchou-ai")
 
 ### 手動ビルド（デバッグ用）
 
@@ -404,24 +398,24 @@ cd test/e2e
 ./scripts/build-static.sh subdir    # Subdirectory用
 
 # 2. 自動ビルドをスキップしてテスト実行
-SKIP_STATIC_BUILD=true npx playwright test --project=client-static-root
+SKIP_STATIC_BUILD=true pnpm exec playwright test --project=client-static-root
 ```
 
 ### テスト実行
 
 ```bash
 # Root ホスティング用テスト
-npx playwright test --project=client-static-root
+pnpm exec playwright test --project=client-static-root
 
 # Subdirectory ホスティング用テスト
-npx playwright test --project=client-static-subdir
+pnpm exec playwright test --project=client-static-subdir
 
 # 両方実行
-npx playwright test --project=client-static-root --project=client-static-subdir
+pnpm exec playwright test --project=client-static-root --project=client-static-subdir
 
 # 個別のテストファイルを実行
-npx playwright test tests/client-static/root/reports.spec.ts
-npx playwright test tests/client-static/subdir/reports.spec.ts
+pnpm exec playwright test tests/client-static/root/reports.spec.ts
+pnpm exec playwright test tests/client-static/subdir/reports.spec.ts
 ```
 
 **注意**:
@@ -440,8 +434,8 @@ npx playwright test tests/client-static/subdir/reports.spec.ts
     ↓ HTTPリクエスト
   dummy-server (port 8002)
     ↓ フィクスチャを返す
-  client/out (Root用静的HTML)
-  client/out-subdir (Subdirectory用静的HTML)
+  apps/public-viewer/out (Root用静的HTML)
+  apps/public-viewer/out-subdir (Subdirectory用静的HTML)
 
 テスト実行時:
   http-server (port 3001 / 3002)
@@ -463,10 +457,10 @@ Subdirectory ホスティング用テストでは、以下を検証します：
 
 ```bash
 # Root用
-cd client
+cd apps/public-viewer
 npx http-server out -p 3001
 
 # Subdirectory用
-cd client
+cd apps/public-viewer
 npx http-server out-subdir -p 3002
 ```

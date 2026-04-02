@@ -22,13 +22,13 @@ cd <BirdXplorer_kouchou-ai のパス>
 curl -I http://localhost:8000/healthcheck
 
 # 静的ビルドを実行（特定のスラッグのみビルドする場合）
-cd client
+cd apps/public-viewer
 BUILD_SLUGS="<ビルドしたいレポートのスラッグ>" \
 NEXT_PUBLIC_API_BASEPATH=http://localhost:8000 \
 API_BASEPATH=http://localhost:8000 \
 NEXT_PUBLIC_PUBLIC_API_KEY=public \
 NEXT_PUBLIC_STATIC_EXPORT_BASE_PATH="/kouchou-ai" \
-npm run build:static
+pnpm run build:static
 
 # すべてのレポートをビルドする場合は BUILD_SLUGS を省略
 ```
@@ -40,7 +40,7 @@ npm run build:static
 rm -rf <BirdXplorer_Viewer のパス>/public/kouchou-ai
 
 # 新しいビルド結果をコピー
-cp -r <BirdXplorer_kouchou-ai のパス>/client/out \
+cp -r <BirdXplorer_kouchou-ai のパス>/apps/public-viewer/out \
      <BirdXplorer_Viewer のパス>/public/kouchou-ai
 ```
 
@@ -91,9 +91,9 @@ pnpm run dev
 
 ### 権限エラーが発生する場合
 
-- `client/.next` や `client/out` ディレクトリが root 権限で作成されている場合
+- `apps/public-viewer/.next` や `apps/public-viewer/out` ディレクトリが root 権限で作成されている場合
   ```bash
-  sudo rm -rf client/.next client/out
+  sudo rm -rf apps/public-viewer/.next apps/public-viewer/out
   ```
 
 ## 環境変数の説明
@@ -112,7 +112,7 @@ pnpm run dev
 
 ## 参考情報
 
-- 静的ビルドの設定: `client/next.config.ts`
-- ビルドスクリプト: `client/package.json` の `build:static`
-- ファイルリネーム: `client/scripts/rename-file.mjs`
-- 画像コピー: `client/scripts/copy-image.mjs`
+- 静的ビルドの設定: `apps/public-viewer/next.config.ts`
+- ビルドスクリプト: `apps/public-viewer/package.json` の `build:static`
+- ファイルリネーム: `apps/public-viewer/scripts/rename-file.mjs`
+- 画像コピー: `apps/public-viewer/scripts/copy-image.mjs`
