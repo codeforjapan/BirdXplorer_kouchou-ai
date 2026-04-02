@@ -185,7 +185,7 @@ export function ClientContainer({ result }: Props) {
           initialTextSearch={textSearch}
         />
       )}
-      {/* <SelectChartButton
+      <SelectChartButton
         selected={selectedChart}
         onChange={setSelectedChart}
         onClickDensitySetting={() => setOpenDensityFilterSetting(true)}
@@ -198,7 +198,7 @@ export function ClientContainer({ result }: Props) {
         isAttentionFilterEnabled={attributeMetas.length > 0}
         showAttentionFilterBadge={hasActiveFilters(filterParams)}
         attentionFilterBadgeCount={countActiveFilters(filterParams)}
-      /> */}
+      />
       <Box mb={6}>
         <Chart
           result={filteredResult}
