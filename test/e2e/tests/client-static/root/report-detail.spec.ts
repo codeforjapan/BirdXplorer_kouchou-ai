@@ -10,6 +10,8 @@ import { test, expect } from "@playwright/test";
  * - 静的ビルドは事前に生成されている必要があります（cd apps/public-viewer && pnpm run build:static）
  * - 静的HTMLなので、APIサーバーへのリクエストは発生しません
  * - ビルド時に埋め込まれたデータが表示されます
+ * - BirdXplorer fork では Header/Footer/Overview/BackButton/Reporter を非表示にしているため、
+ *   それらの要素に対するテストは含みません
  */
 
 test.describe("Client Static - レポート詳細", () => {
@@ -17,14 +19,8 @@ test.describe("Client Static - レポート詳細", () => {
     await page.goto("/test-report-1");
     await page.waitForLoadState("networkidle");
 
-    // レポートタイトル（config.question）が表示される
-    await expect(page.getByText("AIと著作権について、どのような意見が寄せられているのか？")).toBeVisible();
-
-    // Overview（overview）が表示される
-    await expect(page.getByText(/生成AI技術の進化に伴う著作権侵害/)).toBeVisible();
-
-    // レポート作成者名が表示される
-    await expect(page.getByText("テスト太郎")).toBeVisible();
+    // ClientContainerが表示される（チャートエリアが存在する）
+    await expect(page.locator("[data-testid='client-container']").or(page.locator(".js-plotly-plot")).or(page.locator("svg")).first()).toBeVisible();
   });
 
   test("クラスタ情報が表示される", async ({ page }) => {
@@ -35,42 +31,12 @@ test.describe("Client Static - レポート詳細", () => {
     await expect(page.getByText(/生成AIと著作権に関する法的/).first()).toBeVisible();
   });
 
-  test("戻るボタンが表示される", async ({ page }) => {
-    await page.goto("/test-report-1");
-    await page.waitForLoadState("networkidle");
-
-    // 戻るボタンが表示されることを確認
-    const backButton = page.locator("a[href='/']").or(page.getByRole("link", { name: /戻る|一覧/ }));
-    await expect(backButton.first()).toBeVisible();
-  });
-
-  test("戻るボタンをクリックするとトップページに戻る", async ({ page }) => {
-    await page.goto("/test-report-1");
-    await page.waitForLoadState("networkidle");
-
-    // 戻るボタンをクリック
-    const backButton = page.locator("a[href='/']").first();
-    await backButton.click();
-
-    // トップページに戻ることを確認
-    await page.waitForURL("**/");
-    expect(page.url()).toMatch(/\/$/);
-  });
-
   test("異常系 - 存在しないレポートで404エラーが表示される", async ({ page }) => {
     await page.goto("/non-existent-report");
     await page.waitForLoadState("networkidle");
 
     // 404ページまたはNot Foundメッセージが表示される
     await expect(page.getByText(/404|Not Found|見つかりません/)).toBeVisible();
-  });
-
-  test("コメント数が表示される", async ({ page }) => {
-    await page.goto("/test-report-1");
-    await page.waitForLoadState("networkidle");
-
-    // コメント数（100件）が表示される
-    await expect(page.getByText(/100.*コメント|コメント.*100/i)).toBeVisible();
   });
 });
 
@@ -88,9 +54,6 @@ test.describe("Client Static - レポート詳細のレスポンシブデザイ�
       await page.goto("/test-report-1");
       await page.waitForLoadState("networkidle");
 
-      // レポートタイトルが表示される
-      await expect(page.getByText("AIと著作権について、どのような意見が寄せられているのか？")).toBeVisible();
-
       // クラスタ情報が表示される
       await expect(page.getByText(/生成AIと著作権に関する法的/).first()).toBeVisible();
     });
@@ -102,18 +65,11 @@ test.describe("Client Static - パフォーマンス", () => {
     const startTime = Date.now();
     await page.goto("/test-report-1");
     await page.waitForLoadState("networkidle");
-    await expect(page.getByText("AIと著作権について、どのような意見が寄せられているのか？")).toBeVisible();
+    // クラスタ情報が表示されるまでの時間を計測
+    await expect(page.getByText(/生成AIと著作権に関する法的/).first()).toBeVisible();
     const loadTime = Date.now() - startTime;
 
     // 静的HTMLは高速に読み込まれるはず（5秒以内）
     expect(loadTime).toBeLessThan(5000);
   });
 });
-
-/**
- * 注意事項:
- * - このテストは静的ビルド（apps/public-viewer/out）を http-server でホスティングした環境をテストします
- * - 静的ビルドは事前に生成されている必要があります: cd apps/public-viewer && pnpm run build:static
- * - ビルド時にダミーAPIサーバー（port 8002）からデータを取得してHTMLに埋め込みます
- * - 環境変数: NEXT_PUBLIC_API_BASEPATH=http://localhost:8002 で静的ビルドを生成
- */
