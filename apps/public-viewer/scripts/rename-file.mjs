@@ -1,5 +1,5 @@
 import { constants } from "node:fs";
-import { access, copyFile, rename, unlink } from "node:fs/promises";
+import { access, cp, copyFile, rename, rm, unlink } from "node:fs/promises";
 import { resolve } from "node:path";
 
 let ignoreFiles = [];
@@ -22,10 +22,10 @@ async function renameWithFallback(oldPath, newPath) {
     await rename(oldPath, newPath);
   } catch (error) {
     // EXDEV error occurs when trying to rename across different filesystems/mount points
-    // Fall back to copy+delete approach
+    // (e.g. Docker overlay2 layers). Fall back to copy+delete approach.
     if (error.code === "EXDEV") {
-      await copyFile(oldPath, newPath);
-      await unlink(oldPath);
+      await cp(oldPath, newPath, { recursive: true });
+      await rm(oldPath, { recursive: true });
     } else {
       throw error;
     }
