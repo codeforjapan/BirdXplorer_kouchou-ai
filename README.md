@@ -15,7 +15,7 @@
 ## 前提条件
 
 - 一般ユーザー向け：
-  - 安定版リリースをダウンロード（[Windows](./docs/windows-setup.md)/[Mac](./docs/mac-setup.md)/[Linux](./docs/linux-setup.md)の各ガイドを参照）
+- 安定版リリースをダウンロード（[Windows](https://digitaldemocracy2030.github.io/kouchou-ai/getting-started/windows-setup)/[Mac](https://digitaldemocracy2030.github.io/kouchou-ai/getting-started/mac-setup)/[Linux](https://digitaldemocracy2030.github.io/kouchou-ai/getting-started/linux-setup)の各ガイドを参照）
   - Docker（各ガイドに従ってインストール）
   - OpenAI API キー
 - 開発者向け：
@@ -29,7 +29,7 @@
 
 - 広聴 AI は Web アプリとして構築されており、アプリケーションを立ち上げ、ブラウザを操作することでレポートの出力と閲覧ができます
 - 以下の手順は、ローカル環境で docker compose を使用してセットアップする際の手順となります
-- リモート環境でホスティングする場合は、個別のサービス（client, client-admin, api）について、適切に環境変数を設定した上でそれぞれホスティングしてください
+- リモート環境でホスティングする場合は、個別のサービス（public-viewer, admin, api）について、適切に環境変数を設定した上でそれぞれホスティングしてください
   - サービスごとに設定する環境変数は.env.example に記載しています
 
 ### おすすめクラスタ数設定
@@ -48,9 +48,9 @@
 
 - 開発者でない方は以下のユーザーガイドを参照してください：
 
-  - [Windows 環境でのユーザーガイド](./docs/windows-setup.md)
-  - [Mac 環境でのユーザーガイド](./docs/mac-setup.md)
-  - [Linux 環境でのユーザーガイド](./docs/linux-setup.md)
+  - [Windows 環境でのユーザーガイド](https://digitaldemocracy2030.github.io/kouchou-ai/getting-started/windows-setup)
+  - [Mac 環境でのユーザーガイド](https://digitaldemocracy2030.github.io/kouchou-ai/getting-started/mac-setup)
+  - [Linux 環境でのユーザーガイド](https://digitaldemocracy2030.github.io/kouchou-ai/getting-started/linux-setup)
 
 - 開発者向け：
   - リポジトリをクローン
@@ -61,11 +61,11 @@
     - ブラウザで http://localhost:4000 にアクセスすることで管理画面にアクセス可能
     - 環境変数（.env）を編集した場合は、`docker compose down` を実行した後、 `docker compose up --build` を実行してアプリケーションを起動してください
       - 一部の環境変数は Docker イメージのビルド時に埋め込まれているため、環境変数を変更した場合はビルドの再実行が必要となります
-    - すべてのモジュールを起動すると遅い場合は `docker compose up --no-deps client api` など適宜絞って起動できます
-    - フロントエンドをホットリロードで開発する場合は、`dev` プロファイルを使って開発用サービスを起動してください（本番用 `client` / `client-admin` と同時に動かないのでポート競合を気にせず切り替えられます）
-      - `docker compose --profile dev up client-dev client-admin-dev`
+    - すべてのモジュールを起動すると遅い場合は `docker compose up --no-deps public-viewer api` など適宜絞って起動できます
+    - フロントエンドをホットリロードで開発する場合は、`dev` プロファイルを使って開発用サービスを起動してください（本番用 `public-viewer` / `admin` と同時に動かないのでポート競合を気にせず切り替えられます）
+      - `docker compose --profile dev up public-viewer-dev admin-dev`
       - `docker compose --profile dev down` で開発用サービスのみ停止可能
-      - いずれもホスト上の `./client` / `./client-admin` をボリュームマウントするため、保存すれば即座にブラウザへ反映されます
+      - いずれもホスト上の `./apps/public-viewer` / `./apps/admin` をボリュームマウントするため、保存すれば即座にブラウザへ反映されます
 
 ### ローカル LLM の使用
 
@@ -110,7 +110,7 @@ GPU を搭載したマシンでローカル LLM を使用したい場合は、�
   3. 本番環境（`ENVIRONMENT=production` または `NODE_ENV=production`）でのみ Google Analytics が有効になります
      - 開発環境では自動的に無効化されるため、開発中のアクセスはカウントされません
 
-アプリ起動後の、アプリの操作方法については[広聴 AI の使い方](./how_to_use/README.md)を参照
+アプリ起動後の、アプリの操作方法については[広聴 AI の使い方](https://digitaldemocracy2030.github.io/kouchou-ai/user-guide/how-to-use)を参照
 
 ### メタデータファイルのセットアップ
 
@@ -118,12 +118,12 @@ GPU を搭載したマシンでローカル LLM を使用したい場合は、�
 
 1. デフォルト環境について
 
-   - デフォルト環境（`server/public/meta/default`）では、画像やリンクは表示されません
+  - デフォルト環境（`apps/api/public/meta/default`）では、画像やリンクは表示されません
    - これはテスト環境用の設定であり、本番環境では使用しないでください
 
 2. カスタマイズ方法
 
-   - `server/public/meta/custom` ディレクトリに以下のファイルを配置することで、レポート作成者情報をカスタマイズできます：
+  - `apps/api/public/meta/custom` ディレクトリに以下のファイルを配置することで、レポート作成者情報をカスタマイズできます：
      - `metadata.json`: レポート作成者の基本情報
      - `reporter.png`: レポート作成者のロゴ画像
      - `icon.png`: レポートのアイコン画像
@@ -136,7 +136,7 @@ GPU を搭載したマシンでローカル LLM を使用したい場合は、�
 
 ### Azure 環境へのセットアップ
 
-Azure 環境にセットアップする方法は[Azure 環境へのセットアップ方法](./Azure.md)を参照
+Azure 環境にセットアップする方法は[Azure 環境へのセットアップ方法](https://digitaldemocracy2030.github.io/kouchou-ai/deployment/azure)を参照
 
 ### 静的ファイル出力
 
@@ -151,13 +151,13 @@ make client-build-static
 
 `out/` ディレクトリに静的ファイルが出力されますので、Web サーバーに配置してください。
 
-静的エクスポートしたレポートを Github Pages にホスティングする手順は[GitHub Pages の静的ファイルホスティング手順](./docs/github-pages-hosting.md)を参照。
+静的エクスポートしたレポートをGithub Pagesにホスティングする手順は[GitHub Pagesの静的ファイルホスティング手順](https://digitaldemocracy2030.github.io/kouchou-ai/deployment/github-pages)を参照。
 
 ## アーキテクチャ概要
 
 本システムは以下のサービスで構成されています。
 
-### api (server)
+### api
 
 - ポート: 8000
 - 役割: バックエンド API サービス
@@ -169,7 +169,7 @@ make client-build-static
   - Python (FastAPI)
   - Docker
 
-### client
+### public-viewer
 
 - ポート: 3000
 - 役割: レポート表示用フロントエンド
@@ -182,7 +182,7 @@ make client-build-static
   - TypeScript
   - Docker
 
-### client-admin
+### admin
 
 - ポート: 4000
 - 役割: 管理用フロントエンド
@@ -200,11 +200,11 @@ make client-build-static
 - 役割: 開発用ダミー API
 - 用途: 開発環境での API モックとして使用
 
-## client の開発環境の構築手順
+## public-viewer の開発環境の構築手順
 
-フロントエンドのアプリケーション(client と client-admin) を開発用のダミーサーバ (dummy-server) をバックエンドとして起動する手順です。
+フロントエンドのアプリケーション(public-viewer と admin) を開発用のダミーサーバ (dummy-server) をバックエンドとして起動する手順です。
 
-### 1. client, client-admin, dummy-server の環境構築
+### 1. public-viewer, admin, dummy-server の環境構築
 
 ```sh
 make client-setup
@@ -228,9 +228,9 @@ make client-dev -j 3
 ## 開発者向けのガイドライン
 
 広聴 AI は OSS として開発されており、開発者の方からのコントリビュートを募集しています。
-詳しくは、[CONTRIBUTING.md](CONTRIBUTING.md)を参照ください。
+詳しくは、[コントリビューションガイド](https://digitaldemocracy2030.github.io/kouchou-ai/development/contributing)を参照ください。
 また、本プロジェクトでは AI エンジニア「[Devin](https://cognition.ai)」との協働開発を行っています。
-現時点での Devin とのコラボレーションについては、模索中ですが [Devin とのコラボレーション](docs/DEVIN_COLLABORATION.md)を参照してください。
+現時点での Devin とのコラボレーションについては、模索中ですが [Devin とのコラボレーション](https://digitaldemocracy2030.github.io/kouchou-ai/development/devin-collaboration)を参照してください。
 
 ## 機能要望・バグ報告について
 

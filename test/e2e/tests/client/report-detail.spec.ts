@@ -5,6 +5,10 @@ import { test, expect } from "@playwright/test";
  *
  * 個別レポート詳細ページ（http://localhost:3000/[slug]）の機能をテストします。
  * ダミーAPIサーバー（port 8002）がテストフィクスチャを返します。
+ *
+ * 注: BirdXplorer fork では Header/Footer/Overview/BackButton/Reporter を
+ * 非表示にしているため、それらの要素に対するテストは含みません。
+ * ClientContainer（チャート・クラスタ表示）の動作を検証します。
  */
 
 test.describe("Client - レポート詳細", () => {
@@ -12,14 +16,8 @@ test.describe("Client - レポート詳細", () => {
     await page.goto("/test-report-1");
     await page.waitForLoadState("networkidle");
 
-    // レポートタイトル（config.question）が表示される
-    await expect(page.getByText("AIと著作権について、どのような意見が寄せられているのか？")).toBeVisible();
-
-    // Overview（overview）が表示される
-    await expect(page.getByText(/生成AI技術の進化に伴う著作権侵害/)).toBeVisible();
-
-    // レポート作成者名が表示される
-    await expect(page.getByText("テスト太郎")).toBeVisible();
+    // ClientContainerが表示される（チャートエリアが存在する）
+    await expect(page.locator("[data-testid='client-container']").or(page.locator(".js-plotly-plot")).or(page.locator("svg")).first()).toBeVisible();
   });
 
   test("クラスタ情報が表示される", async ({ page }) => {
@@ -30,29 +28,6 @@ test.describe("Client - レポート詳細", () => {
     await expect(page.getByText(/生成AIと著作権に関する法的/).first()).toBeVisible();
   });
 
-  test("戻るボタンが表示される", async ({ page }) => {
-    await page.goto("/test-report-1");
-    await page.waitForLoadState("networkidle");
-
-    // 戻るボタンが表示されることを確認
-    // (BackButtonコンポーネントによって表示される)
-    const backButton = page.locator("a[href='/']").or(page.getByRole("link", { name: /戻る|一覧/ }));
-    await expect(backButton.first()).toBeVisible();
-  });
-
-  test("戻るボタンをクリックするとトップページに戻る", async ({ page }) => {
-    await page.goto("/test-report-1");
-    await page.waitForLoadState("networkidle");
-
-    // 戻るボタンをクリック
-    const backButton = page.locator("a[href='/']").first();
-    await backButton.click();
-
-    // トップページに戻ることを確認
-    await page.waitForURL("**/");
-    expect(page.url()).toMatch(/\/$/);
-  });
-
   test("異常系 - 存在しないレポートで404エラーが表示される", async ({ page }) => {
     await page.goto("/non-existent-report");
     await page.waitForLoadState("networkidle");
@@ -60,14 +35,6 @@ test.describe("Client - レポート詳細", () => {
     // 404ページまたはNot Foundメッセージが表示される
     // Next.jsのnot-found.tsxが表示される
     await expect(page.getByText(/404|Not Found|見つかりません/)).toBeVisible();
-  });
-
-  test("コメント数が表示される", async ({ page }) => {
-    await page.goto("/test-report-1");
-    await page.waitForLoadState("networkidle");
-
-    // コメント数（100件）が表示される
-    await expect(page.getByText(/100.*コメント|コメント.*100/i)).toBeVisible();
   });
 });
 
@@ -85,9 +52,6 @@ test.describe("Client - レポート詳細のレスポンシブデザイン", ()
       await page.goto("/test-report-1");
       await page.waitForLoadState("networkidle");
 
-      // レポートタイトルが表示される
-      await expect(page.getByText("AIと著作権について、どのような意見が寄せられているのか？")).toBeVisible();
-
       // クラスタ情報が表示される
       await expect(page.getByText(/生成AIと著作権に関する法的/).first()).toBeVisible();
     });
@@ -99,7 +63,8 @@ test.describe("Client - パフォーマンス", () => {
     const startTime = Date.now();
     await page.goto("/test-report-1");
     await page.waitForLoadState("networkidle");
-    await expect(page.getByText("AIと著作権について、どのような意見が寄せられているのか？")).toBeVisible();
+    // クラスタ情報が表示されるまでの時間を計測
+    await expect(page.getByText(/生成AIと著作権に関する法的/).first()).toBeVisible();
     const loadTime = Date.now() - startTime;
 
     // 10秒以内に読み込まれることを確認
@@ -113,4 +78,6 @@ test.describe("Client - パフォーマンス", () => {
  * - テストフィクスチャは test/e2e/fixtures/client/ に配置
  * - ダミーAPIサーバーは playwright.config.ts の webServer で自動起動されます
  * - Next.jsのハイドレーション完了を待つため waitForLoadState("networkidle") が必須
+ * - BirdXplorer fork では page.tsx で Header/Footer/Overview/BackButton/Reporter を
+ *   コメントアウトしているため、それらの要素のテストは省略しています
  */

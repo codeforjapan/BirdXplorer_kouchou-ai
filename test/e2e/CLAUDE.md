@@ -97,8 +97,8 @@ npx playwright test --project=client
 
 ```bash
 # ポート使用状況を確認
-lsof -i :3000  # client
-lsof -i :4000  # client-admin
+lsof -i :3000  # public-viewer
+lsof -i :4000  # admin
 lsof -i :8002  # dummy server
 
 # プロセスを停止
@@ -451,7 +451,5 @@ npx playwright show-trace test-results/{test-name}/trace.zip
 ## 参考資料
 
 - [README.md](./README.md) - 詳細な実行手順
-- [TEST_PLAN.md](./TEST_PLAN.md) - 管理画面テスト計画
-- [CLIENT_TEST_PLAN.md](./CLIENT_TEST_PLAN.md) - Clientテスト計画
 - [Playwright公式ドキュメント](https://playwright.dev/)
 - [Next.js 15ドキュメント](https://nextjs.org/docs)

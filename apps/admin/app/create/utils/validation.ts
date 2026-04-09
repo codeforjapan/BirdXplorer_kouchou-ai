@@ -1,0 +1,136 @@
+/**
+ * IDのバリデーション
+ * 英小文字、数字、ハイフンのみ使用可能
+ * @param id バリデーション対象のID
+ * @returns バリデーション結果
+ */
+export function isValidId(id: string): boolean {
+  return /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(id) && id.length <= 255;
+}
+
+/**
+ * レポートIDのバリデーション
+ * @param id バリデーション対象のレポートID
+ * @returns バリデーション結果とエラーメッセージ
+ */
+export function validateReportId(id: string): { isValid: boolean; errorMessage?: string } {
+  if (id.length === 0) {
+    return { isValid: false, errorMessage: "IDを入力してください" };
+  }
+
+  if (id.length > 255) {
+    return { isValid: false, errorMessage: "IDは255文字以内で入力してください" };
+  }
+
+  if (!/^[a-z0-9-]+$/.test(id)) {
+    return { isValid: false, errorMessage: "IDは英小文字、数字、ハイフンのみ使用できます" };
+  }
+
+  if (id.startsWith("-")) {
+    return { isValid: false, errorMessage: "IDはハイフンで始めることができません" };
+  }
+
+  if (id.endsWith("-")) {
+    return { isValid: false, errorMessage: "IDはハイフンで終わることができません" };
+  }
+
+  return { isValid: true };
+}
+
+/**
+ * フォーム入力値のバリデーション
+ * @param values バリデーション対象の値
+ * @returns バリデーション結果と、エラーメッセージ
+ */
+export function validateFormValues({
+  input,
+  question,
+  intro,
+  clusterLv1,
+  clusterLv2,
+  model,
+  extractionPrompt,
+  inputType,
+  csv,
+  spreadsheetImported,
+  selectedCommentColumn,
+  csvColumns,
+  selectedAttributeColumns,
+  provider,
+  modelOptions,
+  pluginImported,
+  pluginSelectedCommentColumn,
+}: {
+  input: string;
+  question: string;
+  intro: string;
+  clusterLv1: number;
+  clusterLv2: number;
+  model: string;
+  extractionPrompt: string;
+  inputType: string;
+  csv: File | null;
+  spreadsheetImported: boolean;
+  selectedCommentColumn: string;
+  csvColumns: string[];
+  selectedAttributeColumns?: string[];
+  provider?: string;
+  modelOptions?: { value: string; label: string }[];
+  pluginImported?: boolean;
+  pluginSelectedCommentColumn?: string;
+}): { isValid: boolean; errorMessage?: string } {
+  // 共通チェック（question と intro は省略可能）
+  if (!isValidId(input)) {
+    return { isValid: false, errorMessage: "IDが無効です" };
+  }
+  if (clusterLv1 <= 0) {
+    return { isValid: false, errorMessage: "第1階層の意見グループ数を設定してください" };
+  }
+  if (clusterLv2 <= 0) {
+    return { isValid: false, errorMessage: "第2階層の意見グループ数を設定してください" };
+  }
+  if (model.length === 0) {
+    return { isValid: false, errorMessage: "モデルを選択してください" };
+  }
+  if (extractionPrompt.length === 0) {
+    return { isValid: false, errorMessage: "抽出プロンプトが設定されていません" };
+  }
+
+  // 入力ソースのチェック
+  const isPluginInput = inputType.startsWith("plugin:");
+  const sourceCheck =
+    (inputType === "file" && !!csv) ||
+    (inputType === "spreadsheet" && spreadsheetImported) ||
+    (isPluginInput && pluginImported);
+
+  if (!sourceCheck) {
+    return {
+      isValid: false,
+      errorMessage: "入力データが選択されていません",
+    };
+  }
+
+  // カラム選択のチェック
+  if (isPluginInput) {
+    if (!pluginSelectedCommentColumn) {
+      return {
+        isValid: false,
+        errorMessage: "コメントカラムを選択してください",
+      };
+    }
+  } else if (csvColumns.length > 0 && !selectedCommentColumn) {
+    return {
+      isValid: false,
+      errorMessage: "コメントカラムを選択してください",
+    };
+  }
+
+  if (provider === "local" && modelOptions && modelOptions.length === 0) {
+    return {
+      isValid: false,
+      errorMessage: "LocalLLMのモデルリストが空です。モデル取得ボタンを押してモデルリストを取得してください。",
+    };
+  }
+
+  return { isValid: true };
+}
