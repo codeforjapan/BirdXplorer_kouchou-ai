@@ -29,6 +29,7 @@ app.post("/build", async (req, res) => {
         PATH: process.env.PATH ?? "",
         NODE_ENV: "production",
         BUILD_SLUGS: req.body.slugs || "",
+        NEXT_PUBLIC_STATIC_EXPORT_BASE_PATH: req.body.basePath || "",
         NEXT_DISABLE_FETCH_DURING_BUILD: "",
       },
     });
