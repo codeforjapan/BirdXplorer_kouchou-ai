@@ -28,7 +28,8 @@ app.post("/build", async (req, res) => {
         ...process.env,
         PATH: process.env.PATH ?? "",
         NODE_ENV: "production",
-        BUILD_SLUGS: req.body.slugs || ""
+        BUILD_SLUGS: req.body.slugs || "",
+        NEXT_DISABLE_FETCH_DURING_BUILD: "",
       },
     });
 
