@@ -23,6 +23,11 @@ type PageProps = {
 export const revalidate = 300;
 
 export async function generateStaticParams() {
+  if (process.env.BUILD_SLUGS) {
+    const buildSlugs = process.env.BUILD_SLUGS.split(",").filter(Boolean);
+    return buildSlugs.map((slug) => ({ slug }));
+  }
+
   try {
     const response = await fetch(`${getApiBaseUrl()}/reports`, {
       headers: {
@@ -31,18 +36,11 @@ export async function generateStaticParams() {
       },
     });
     const reports: Report[] = await response.json();
-    const slugs = reports
+    return reports
       .filter((report) => report.status === "ready")
       .map((report) => ({
         slug: report.slug,
       }));
-
-    if (process.env.BUILD_SLUGS) {
-      const buildSlugs = process.env.BUILD_SLUGS.split(",").filter(Boolean);
-      return slugs.filter((report) => buildSlugs.includes(report.slug));
-    }
-
-    return slugs;
   } catch (_e) {
     return [];
   }
