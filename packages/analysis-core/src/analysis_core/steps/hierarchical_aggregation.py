@@ -54,6 +54,7 @@ class Cluster(TypedDict):
     value: int
     parent: str
     density_rank_percentile: float | None
+    value_by_period: dict[str, int] | None
 
 
 def hierarchical_aggregation(config) -> bool:
@@ -91,6 +92,12 @@ def hierarchical_aggregation(config) -> bool:
 
         results["arguments"] = _build_arguments(clusters, comments, relation_df, config)
         results["clusters"] = _build_cluster_value(labels, arg_num)
+
+        period_attr = config["hierarchical_aggregation"].get("period_attribute")
+        period_column = f"attribute_{period_attr}" if period_attr else None
+        cluster_value_by_period = _build_cluster_value_by_period(clusters, relation_df, comments, period_column)
+        for cluster in results["clusters"]:
+            cluster["value_by_period"] = cluster_value_by_period.get(cluster["id"]) or None
 
         # results["comments"] = _build_comments_value(
         #     comments, arguments, hidden_properties_map
@@ -366,6 +373,48 @@ def _build_cluster_value(melted_labels: pl.DataFrame, total_num: int) -> list[Cl
         )
         results.append(cluster_value)
     return results
+
+
+def _build_cluster_value_by_period(
+    clusters: pl.DataFrame,
+    relation_df: pl.DataFrame,
+    comments: pl.DataFrame,
+    period_column: str | None,
+) -> dict[str, dict[str, int]]:
+    """Count (argument x comment) occurrences per cluster, broken down by period.
+
+    Joins through relation_df (arg-id -> comment-id) rather than the
+    arg_comment_map used in _build_arguments, so an argument deduplicated
+    across multiple comments is counted once per comment occurrence instead
+    of being collapsed onto a single comment's period.
+    """
+    if not period_column or period_column not in comments.columns:
+        return {}
+    if "arg-id" not in relation_df.columns or "comment-id" not in relation_df.columns:
+        return {}
+
+    relation = relation_df.with_columns(pl.col("comment-id").cast(pl.Utf8))
+    comments_period = comments.with_columns(pl.col("comment-id").cast(pl.Utf8)).select(["comment-id", period_column])
+
+    cluster_columns = [col for col in clusters.columns if col.startswith("cluster-level-") and "id" in col]
+
+    occurrences = (
+        clusters.select(["arg-id", *cluster_columns])
+        .join(relation, on="arg-id", how="inner")
+        .join(comments_period, on="comment-id", how="inner")
+        .filter(pl.col(period_column).is_not_null())
+    )
+
+    result: dict[str, dict[str, int]] = defaultdict(dict)
+
+    for row in occurrences.group_by(period_column).len().iter_rows(named=True):
+        result["0"][str(row[period_column])] = int(row["len"])
+
+    for cluster_column in cluster_columns:
+        for row in occurrences.group_by([cluster_column, period_column]).len().iter_rows(named=True):
+            result[str(row[cluster_column])][str(row[period_column])] = int(row["len"])
+
+    return dict(result)
 
 
 def _build_comments_value(

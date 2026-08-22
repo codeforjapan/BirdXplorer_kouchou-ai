@@ -148,6 +148,8 @@ export type Cluster = {
   parent: string;
   /** 密度ランクのパーセンタイル */
   density_rank_percentile?: number | null;
+  /** 期間別の件数（period_attribute設定時のみ。キーは期間の値、値はそのクラスタ内の意見×コメント出現数） */
+  value_by_period?: Record<string, number> | null;
   /** フィルターの結果、すべての要素が除外された場合にtrue */
   allFiltered?: boolean;
   /** フィルター対象外の場合にtrue（TreemapChartで使用） */
