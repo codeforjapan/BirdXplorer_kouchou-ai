@@ -66,7 +66,8 @@
         },
         "options": {
             "sampling_num": 5000,
-            "hidden_properties": {}
+            "hidden_properties": {},
+            "period_attribute": null
         }
     },
     {

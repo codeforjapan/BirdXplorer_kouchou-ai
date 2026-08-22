@@ -321,6 +321,23 @@ class TestValidateConfig:
             specs,
         )
 
+    def test_validate_config_accepts_period_attribute(self):
+        """hierarchical_aggregation.period_attribute (issue #8) must be a recognized option."""
+        from analysis_core.core import load_specs, validate_config
+        from analysis_core.core.orchestration import _PACKAGE_DIR
+
+        specs = load_specs(_PACKAGE_DIR / "specs" / "hierarchical_specs.json")
+
+        # Should not raise
+        validate_config(
+            {
+                "input": "test",
+                "question": "Test?",
+                "hierarchical_aggregation": {"period_attribute": "week"},
+            },
+            specs,
+        )
+
 
 class TestDecideWhatToRun:
     """Test decide_what_to_run function."""
