@@ -1,10 +1,11 @@
 """Tests for CLI entry point."""
 
 import json
+import os
 import subprocess
 import sys
 
-import pytest
+PYTEST_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestCLI:
@@ -16,7 +17,7 @@ class TestCLI:
             [sys.executable, "-m", "analysis_core", "--help"],
             capture_output=True,
             text=True,
-            cwd="/Users/nishio/kouchou-ai/packages/analysis-core",
+            cwd=PYTEST_ROOT_DIR,
         )
         assert result.returncode == 0
         assert "kouchou-analyze" in result.stdout
@@ -31,7 +32,7 @@ class TestCLI:
             [sys.executable, "-m", "analysis_core", "--version"],
             capture_output=True,
             text=True,
-            cwd="/Users/nishio/kouchou-ai/packages/analysis-core",
+            cwd=PYTEST_ROOT_DIR,
         )
         assert result.returncode == 0
         assert "kouchou-analyze" in result.stdout
@@ -43,7 +44,7 @@ class TestCLI:
             [sys.executable, "-m", "analysis_core", "--config", "nonexistent.json"],
             capture_output=True,
             text=True,
-            cwd="/Users/nishio/kouchou-ai/packages/analysis-core",
+            cwd=PYTEST_ROOT_DIR,
         )
         assert result.returncode == 1
         assert "Config file not found" in result.stderr
@@ -84,7 +85,7 @@ class TestCLI:
             ],
             capture_output=True,
             text=True,
-            cwd="/Users/nishio/kouchou-ai/packages/analysis-core",
+            cwd=PYTEST_ROOT_DIR,
         )
         assert result.returncode == 0
         assert "Execution Plan" in result.stdout
