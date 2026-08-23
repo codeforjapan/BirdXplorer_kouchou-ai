@@ -1,8 +1,100 @@
 """Tests for per-cluster, per-period opinion counts (issue #8 案A scaffolding)."""
 
+import json
+
 import polars as pl
 
-from analysis_core.steps.hierarchical_aggregation import _build_cluster_value_by_period
+from analysis_core.steps.hierarchical_aggregation import _build_cluster_value_by_period, hierarchical_aggregation
+
+
+class TestHierarchicalAggregationBackwardCompatibility:
+    """Regression: existing callers unaware of period_attribute (e.g. the monthly
+
+    report pipeline in codeforjapan/BirdXplorer-cdk, which bundles this package
+    via a floating ECR `latest` tag and has no reason to set this new option)
+    must see byte-for-byte unchanged behavior from hierarchical_aggregation().
+    """
+
+    def _write_fixture_dataset(self, tmp_path):
+        output_base_dir = tmp_path / "outputs"
+        input_base_dir = tmp_path / "inputs"
+        dataset = "test_output"
+        (output_base_dir / dataset).mkdir(parents=True)
+        input_base_dir.mkdir(parents=True)
+
+        pl.DataFrame({"arg-id": ["A1", "A2"], "argument": ["arg1", "arg2"]}).write_csv(
+            output_base_dir / dataset / "args.csv"
+        )
+        pl.DataFrame({"arg-id": ["A1", "A2"], "comment-id": ["c1", "c2"]}).write_csv(
+            output_base_dir / dataset / "relations.csv"
+        )
+        pl.DataFrame(
+            {
+                "arg-id": ["A1", "A2"],
+                "argument": ["arg1", "arg2"],
+                "x": [0.1, 0.2],
+                "y": [0.1, 0.2],
+                "cluster-level-1-id": ["C1", "C1"],
+            }
+        ).write_csv(output_base_dir / dataset / "hierarchical_clusters.csv")
+        pl.DataFrame(
+            {
+                "level": [1],
+                "id": ["C1"],
+                "label": ["Cluster1"],
+                "description": ["desc1"],
+                "value": [2],
+                "parent": ["0"],
+                "density_rank_percentile": [50.0],
+            }
+        ).write_csv(output_base_dir / dataset / "hierarchical_merge_labels.csv")
+        (output_base_dir / dataset / "hierarchical_overview.txt").write_text("overview text")
+        pl.DataFrame({"comment-id": ["c1", "c2"], "comment-body": ["a", "b"]}).write_csv(
+            input_base_dir / "test_input.csv"
+        )
+
+        return output_base_dir, input_base_dir, dataset
+
+    def _base_config(self, output_base_dir, input_base_dir, dataset):
+        return {
+            "input": "test_input",
+            "output_dir": dataset,
+            "intro": "",
+            "extraction": {"limit": 30, "categories": {}},
+            "is_pubcom": False,
+            "enable_source_link": False,
+            "_input_base_dir": str(input_base_dir),
+            "_output_base_dir": str(output_base_dir),
+        }
+
+    def test_output_unchanged_for_config_without_period_attribute(self, tmp_path):
+        """A caller's config with no period_attribute key at all (the pre-#8 shape) must still work and get value_by_period=None everywhere."""
+        output_base_dir, input_base_dir, dataset = self._write_fixture_dataset(tmp_path)
+        config = self._base_config(output_base_dir, input_base_dir, dataset)
+        config["hierarchical_aggregation"] = {"hidden_properties": {}}
+
+        assert hierarchical_aggregation(config) is True
+
+        result = json.loads((output_base_dir / dataset / "hierarchical_result.json").read_text())
+
+        assert [c["value"] for c in result["clusters"]] == [2, 2]
+        assert result["clusters"][0]["id"] == "0"
+        assert result["clusters"][1]["id"] == "C1"
+        for cluster in result["clusters"]:
+            assert cluster["value_by_period"] is None
+        assert result["comment_num"] == 2
+
+    def test_output_unchanged_when_period_attribute_column_missing(self, tmp_path):
+        """period_attribute is set, but the input CSV has no matching attribute_* column: still a no-op, not an error."""
+        output_base_dir, input_base_dir, dataset = self._write_fixture_dataset(tmp_path)
+        config = self._base_config(output_base_dir, input_base_dir, dataset)
+        config["hierarchical_aggregation"] = {"hidden_properties": {}, "period_attribute": "week"}
+
+        assert hierarchical_aggregation(config) is True
+
+        result = json.loads((output_base_dir / dataset / "hierarchical_result.json").read_text())
+        for cluster in result["clusters"]:
+            assert cluster["value_by_period"] is None
 
 
 class TestBuildClusterValueByPeriod:
