@@ -31,6 +31,9 @@ class Cluster(BaseModel):
     value: int = Field(..., ge=0, description="Number of arguments in this cluster")
     parent: str = Field(..., description="Parent cluster ID (empty for root)")
     density_rank_percentile: float | None = Field(None, description="Density ranking percentile")
+    value_by_period: dict[str, int] | None = Field(
+        None, description="Number of argument x comment occurrences per period, when period_attribute is configured"
+    )
 
 
 class HierarchicalResult(BaseModel):
